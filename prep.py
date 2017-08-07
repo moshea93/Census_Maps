@@ -14,16 +14,16 @@ def prep_data(csvfilelist, csvvariables):
     output = pd.concat(datalist)
     return output
 
-def get_education_data(csvfile):
+def get_war_data(csvfile, csvvariable):
     data = pd.read_csv(csvfile, dtype={'PUMA10': object})
     #N/A is "no active duty", 0 is "did not serve this period" --> 0 is global "did not serve"
     data = data.fillna(value=0)
-    average = data.groupby('PUMA10').agg({'MLPE': 'mean'})
-    average['MLPE'] = average['MLPE'].divide(average['MLPE'].mean())
-    value_dict = dict(zip(average.index, average['MLPE']))
+    average = data.groupby('PUMA10').agg({csvvariable: 'mean'})
+    average[csvvariable] = average[csvvariable].divide(average[csvvariable].mean())
+    value_dict = dict(zip(average.index, average[csvvariable]))
     return value_dict
 
-def prep_shapefiles(value_dict):
+def prep_shapefiles(value_dict, save_loc):
     fields = [('DeletionFlag', 'C', 1, 0), ['STATEFP10', 'C', 2, 0], ['PUMACE10', 'C', 5, 0], ['VET_PROPORTION', 'N', 16, 4]]
     w = shapefile.Writer(shapeType=5)
     w.fields = fields
@@ -43,12 +43,12 @@ def prep_shapefiles(value_dict):
             newrecord.append(value_dict[shape.record[1]])
             w.records.append(newrecord)
             w._shapes.append(shape.shape)
-    w.save('us_shapefile/5yearnamvets/nam')
+    w.save('maps/' + save_loc)
 
 if __name__ == '__main__':
-    output = prep_data(['5yeardata/ss15pusa.csv', '5yeardata/ss15pusb.csv', '5yeardata/ss15pusc.csv', '5yeardata/ss15pusd.csv'], ['PUMA10', 'MLPE'])
-    output.to_csv('5yearnamvets.csv')
+    output = prep_data(['data/ss15pusa.csv', 'data/ss15pusb.csv', 'data/ss15pusc.csv', 'data/ss15pusd.csv'], ['PUMA10', 'MLPE'])
+    output.to_csv('namvets.csv')
     print 'Starting value_dict'
-    value_dict = get_education_data('5yearnamvets.csv')
+    value_dict = get_war_data('namvets.csv', 'MLPE')
     print 'Starting shapefile construction'
-    prep_shapefiles(value_dict)
+    prep_shapefiles(value_dict, 'namvets/nam')
