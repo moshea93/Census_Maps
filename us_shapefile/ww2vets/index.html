@@ -17,13 +17,13 @@
             .attr("width", width)
             .attr("height", height);
 
-        d3.json("namsimpletopo.json", function(error, us) {
+        d3.json("ww2simpletopo.json", function(error, us) {
             if (error) return console.error(error);
             console.log(us); 
-            console.log(us.objects.namgeo.geometries[0].properties.VET_PROPORT);
-            console.log(topojson.feature(us, us.objects.namgeo).features[0]);
+            console.log(us.objects.ww2geo.geometries[0].properties.VET_PROPORT);
+            console.log(topojson.feature(us, us.objects.ww2geo).features[0]);
 
-            var usareas = topojson.feature(us, us.objects.namgeo);
+            var usareas = topojson.feature(us, us.objects.ww2geo);
 
             var projection = d3.geoAlbersUsa()
             /*    .center([0, 39.4])
@@ -42,7 +42,7 @@
                     var ratio = d.properties.VET_PROPORT;
                     
                     var color = d3.scaleLinear()
-                        .domain([.491, .982, 1.964])
+                        .domain([.478, .956, 1.90])
                         .range(["blue", "white", "red"]);
                     
                     return color(ratio);
