@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    /* CSS goes here. */
+
+</style>
+<body>
+    <script src="//d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="//d3js.org/topojson.v2.min.js"></script>
+    <script>
+        
+        var width = 960,
+            height = 1160;
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        d3.json("iraqsimpletopo.json", function(error, us) {
+            if (error) return console.error(error);
+            console.log(us); 
+            console.log(us.objects.iraqgeo.geometries[0].properties.VET_PROPORT);
+            console.log(topojson.feature(us, us.objects.iraqgeo).features[0]);
+
+            var usareas = topojson.feature(us, us.objects.iraqgeo);
+
+            var projection = d3.geoAlbersUsa()
+            
+            var path = d3.geoPath()
+                .projection(projection);
+                
+            svg.selectAll(".us")
+                .data(usareas.features).enter().append("path")
+                .attr("class", function(d) { return "PUMACE10 " + d.properties.PUMACE10; })
+                .attr("d", path)
+                .attr("fill", function(d){
+                    var ratio = d.properties.VET_PROPORT;
+                    
+                    var color = d3.scaleLinear()
+                        .domain([.321, .642, 1.28])
+                        .range(["blue", "white", "red"]);
+                    
+                    return color(ratio);
+                    
+                    /*
+                    return d3.scaleSequential(d3.interpolateViridis).domain([0,3])(d.properties.VET_PROPORT);
+                    */
+                    /*
+                    if(ratio < .5){
+                        return d3.rgb("#3182bd")
+                    }
+                    else if(ratio < .75){
+                        return d3.rgb("#6baed6")
+                    }
+                    else if(ratio < 1){
+                        return d3.rgb("#c6dbef")
+                        console.log(ratio)
+                    }
+                    else if(ratio < 1.33){
+                        return d3.rgb("#fdd082")
+                    }
+                    else if(ratio < 2){
+                        return d3.rgb("#fd8d3c")
+                    }
+                    else{
+                        return d3.rgb("#e6550d")
+                    }
+                    */
+                });
+            });
+
+    </script>
+
